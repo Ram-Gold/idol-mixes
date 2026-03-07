@@ -31,8 +31,8 @@ function Body() {
       <div className="max-w-6xl mx-auto">
         {/* Title Section */}
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-gray-800 mb-2">Find Your Favorite Chants</h2>
-          <p className="text-gray-600">Search through our collection of idol chants & mixes</p>
+          <h2 className="text-4xl font-bold text-gray-800 mb-2">Find Your Chants</h2>
+          <p className="text-gray-600">Search through collection of idol chants & mixes</p>
         </div>
 
         {/* Search Bar */}
@@ -56,11 +56,10 @@ function Body() {
               key={opt.value}
               type="button"
               onClick={() => setScript(opt.value)}
-              className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                script === opt.value
+              className={`px-4 py-2 rounded-full font-medium transition-colors ${script === opt.value
                   ? 'bg-purple-600 text-white shadow-md'
                   : 'bg-white text-gray-700 border-2 border-gray-300 hover:border-purple-400 hover:bg-purple-50'
-              }`}
+                }`}
             >
               {opt.label}
             </button>
