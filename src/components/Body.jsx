@@ -352,8 +352,6 @@ function Body() {
                     onDragEnter={() => handleDragEnter(idx)}
                     onDragEnd={handleDragEnd}
                     onDragOver={(e) => e.preventDefault()}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
                     className="rounded-xl shadow-md p-6 border relative group transition-all duration-200"
                     style={{
                       backgroundColor: '#fff8f3',
@@ -361,8 +359,6 @@ function Body() {
                       borderWidth: '2px',
                       borderStyle: isDragging ? 'dashed' : 'solid',
                       opacity: isDragging ? 0.4 : 1,
-                      cursor: 'grab',
-                      touchAction: 'none',  // let our touch handlers own the gesture
                     }}
                   >
                     {/* Drag handle + Action buttons */}
@@ -374,6 +370,8 @@ function Body() {
                           className="p-1.5 rounded-full cursor-grab active:cursor-grabbing"
                           style={{ color: '#0d0d0d55', touchAction: 'none' }}
                           onTouchStart={(e) => handleTouchStart(e, idx)}
+                          onTouchMove={handleTouchMove}
+                          onTouchEnd={handleTouchEnd}
                         >
                           <IoReorderThreeOutline size={18} />
                         </span>
