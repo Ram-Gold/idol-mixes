@@ -1,12 +1,25 @@
-// Import the useState hook from React. 
-// useState allows us to add state (variables that trigger re-renders when changed) to our component.
-import { useState } from 'react'
+// Import React hooks for state management.
+import { useState, useRef } from 'react'
+
+// Import web-haptics for tactile feedback on mobile devices.
+// The library exposes a class — we create one shared singleton for the whole app.
+import { WebHaptics } from 'web-haptics'
+const haptics = new WebHaptics()
 
 // Import the data containing the idol chants from a local file.
 import { idolChants } from '../data/idolChants'
 
-// Define a constant array of options for the script toggle (Romaji, Hiragana, Katakana).
-// Constants defined outside the component don't get recreated on every render, improving performance.
+// Import react-icons for the Add, Duplicate, and Remove icons.
+import { IoAddCircle } from 'react-icons/io5'
+import { IoCopyOutline } from 'react-icons/io5'
+import { IoTrashOutline } from 'react-icons/io5'
+import { IoImageOutline } from 'react-icons/io5'
+import { IoReorderThreeOutline } from 'react-icons/io5'
+
+// Import html2canvas for saving pinned chants as an image.
+import html2canvas from 'html2canvas'
+
+// Script toggle options.
 const SCRIPT_OPTIONS = [
   { value: 'romaji', label: 'Romaji' },
   { value: 'hiragana', label: 'Hiragana' },
@@ -16,104 +29,244 @@ const SCRIPT_OPTIONS = [
 // Define the main Body component.
 function Body() {
   // --- STATE DEFINITIONS ---
-  
-  // Create a state variable 'searchTerm' to store what the user types in the search bar.
-  // 'setSearchTerm' is the function we'll call to update this value.
-  // The initial value is an empty string: ''.
   const [searchTerm, setSearchTerm] = useState('')
-  
-  // Create a state variable 'script' to keep track of which writing system is currently selected.
-  // The initial value is set to 'romaji'.
   const [script, setScript] = useState('romaji')
-
-  // State to toggle whether YouTube example links are shown at the bottom of each card.
   const [showExamples, setShowExamples] = useState(false)
+
+  // pinnedChants: array of { id, originalId, name, romaji, hiragana, katakana, example }
+  // Each pinned card has a unique 'id' (UUID-like) so duplicates are independent entries.
+  const [pinnedChants, setPinnedChants] = useState([])
+
+  // Ref for the pinned section div — used by html2canvas.
+  const pinnedRef = useRef(null)
+
+  // Drag-and-drop refs: track which index is being dragged and which is the current drop target.
+  // Using refs (not state) so drag events don't trigger re-renders mid-drag.
+  const dragSrcIdx = useRef(null)
+  const dragOverIdx = useRef(null)
+
+  // Visual drag state — only one state value needed to trigger re-render for highlighting.
+  const [draggingIdx, setDraggingIdx] = useState(null)
 
   // --- LOGIC SECTION ---
 
-  // Filter the full list of idolChants based on the current searchTerm.
-  // This runs every time the component renders (e.g., when the user types in the search bar).
+  // Filter the full list of idolChants by searchTerm.
   const filteredChants = idolChants.filter(chant => {
-    // Convert the search term to lowercase to make the search case-insensitive.
     const q = searchTerm.toLowerCase()
-    
-    // Return true if the search term matches any of these fields:
     return (
-      // 1. Matches the name of the chant
       chant.name.toLowerCase().includes(q) ||
-      // 2. Matches the romaji version (checking if it exists first)
       (chant.romaji && chant.romaji.toLowerCase().includes(q)) ||
-      // 3. Matches the hiragana version
       (chant.hiragana && chant.hiragana.includes(searchTerm)) ||
-      // 4. Matches the katakana version
       (chant.katakana && chant.katakana.includes(searchTerm))
     )
   })
 
-  // A helper function to determine which text to display for a chant card.
-  // It checks the currently selected 'script' state (romaji, hiragana, etc.).
+  // Helper: decide which text to show based on selected script.
   const getDisplayText = (chant) => {
-    // Try to get the text in the selected script. If it doesn't exist, fall back to romaji.
     const text = chant[script] || chant.romaji
-    // Ensure we always return a string, even if the text is undefined.
     return text || ''
   }
 
+  // Generate a simple unique ID for duplicated pins.
+  const genId = () => `pin-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+
+  // Pin a chant (add it to the top section).
+  const handlePin = (chant) => {
+    // Haptic: double-pulse "add" pattern.
+    haptics.trigger([
+      { duration: 30 },
+      { delay: 60, duration: 40, intensity: 1 },
+    ])
+    setPinnedChants(prev => [...prev, { ...chant, _pinId: genId() }])
+  }
+
+  // Duplicate an already-pinned chant (insert a copy right below it).
+  const handleDuplicate = (pinId) => {
+    // Haptic: double-pulse "add" pattern.
+    haptics.trigger([
+      { duration: 30 },
+      { delay: 60, duration: 40, intensity: 1 },
+    ])
+    setPinnedChants(prev => {
+      const idx = prev.findIndex(c => c._pinId === pinId)
+      if (idx === -1) return prev
+      const copy = { ...prev[idx], _pinId: genId() }
+      const next = [...prev]
+      next.splice(idx + 1, 0, copy)
+      return next
+    })
+  }
+
+  // Remove a pinned chant by its unique pin ID.
+  const handleRemove = (pinId) => {
+    // Haptic: four-strike escalating "remove" pattern.
+    haptics.trigger([
+      { duration: 40, intensity: 0.7 },
+      { delay: 40, duration: 40, intensity: 0.7 },
+      { delay: 40, duration: 40, intensity: 0.9 },
+      { delay: 40, duration: 50, intensity: 0.6 },
+    ])
+    setPinnedChants(prev => prev.filter(c => c._pinId !== pinId))
+  }
+
+  // ── Mouse Drag-and-drop handlers ──
+  const handleDragStart = (idx) => {
+    // Haptic: short single tap for card selection.
+    haptics.trigger([
+      { duration: 8 },
+    ], { intensity: 0.3 })
+    dragSrcIdx.current = idx
+    setDraggingIdx(idx)
+  }
+
+  const handleDragEnter = (idx) => {
+    dragOverIdx.current = idx
+  }
+
+  const handleDragEnd = () => {
+    const from = dragSrcIdx.current
+    const to = dragOverIdx.current
+    if (from !== null && to !== null && from !== to) {
+      setPinnedChants(prev => {
+        const next = [...prev]
+        const [moved] = next.splice(from, 1)
+        next.splice(to, 0, moved)
+        return next
+      })
+    }
+    dragSrcIdx.current = null
+    dragOverIdx.current = null
+    setDraggingIdx(null)
+  }
+
+  // ── Touch Drag-and-drop handlers (mobile) ──
+  // The native HTML5 DnD API doesn't fire on touch, so we implement
+  // our own using touchstart / touchmove / touchend.
+  const touchDragCardRef = useRef(null)   // the DOM node being dragged
+
+  const handleTouchStart = (e, idx) => {
+    // Only one finger needed
+    // Haptic: short single tap for card selection.
+    haptics.trigger([
+      { duration: 8 },
+    ], { intensity: 0.3 })
+    dragSrcIdx.current = idx
+    dragOverIdx.current = idx
+    setDraggingIdx(idx)
+  }
+
+  const handleTouchMove = (e) => {
+    e.preventDefault()  // prevent page scroll while dragging
+    if (dragSrcIdx.current === null) return
+
+    const touch = e.touches[0]
+    const x = touch.clientX
+    const y = touch.clientY
+
+    // Temporarily turn off pointer-events on the dragged card so
+    // elementFromPoint can "see through" it to the card underneath.
+    const draggingEl = touchDragCardRef.current
+    const prevPE = draggingEl ? draggingEl.style.pointerEvents : ''
+    if (draggingEl) draggingEl.style.pointerEvents = 'none'
+
+    const el = document.elementFromPoint(x, y)
+
+    if (draggingEl) draggingEl.style.pointerEvents = prevPE
+
+    // Walk up the DOM to find an element with data-pinidx
+    let target = el
+    while (target && target !== document.body) {
+      const pinIdx = target.dataset.pinidx
+      if (pinIdx !== undefined) {
+        const toIdx = parseInt(pinIdx, 10)
+        if (!isNaN(toIdx)) {
+          dragOverIdx.current = toIdx
+        }
+        break
+      }
+      target = target.parentElement
+    }
+  }
+
+  const handleTouchEnd = () => {
+    const from = dragSrcIdx.current
+    const to = dragOverIdx.current
+    if (from !== null && to !== null && from !== to) {
+      setPinnedChants(prev => {
+        const next = [...prev]
+        const [moved] = next.splice(from, 1)
+        next.splice(to, 0, moved)
+        return next
+      })
+    }
+    dragSrcIdx.current = null
+    dragOverIdx.current = null
+    setDraggingIdx(null)
+    touchDragCardRef.current = null
+  }
+
+  // Save the pinned section as a PNG image using html2canvas.
+  const handleSaveAsImage = async () => {
+    if (!pinnedRef.current) return
+    try {
+      const canvas = await html2canvas(pinnedRef.current, {
+        backgroundColor: '#eff0f3',
+        scale: 2,
+        useCORS: true
+      })
+      const link = document.createElement('a')
+      link.download = 'pinned-chants.png'
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (err) {
+      console.error('Failed to save image:', err)
+    }
+  }
+
   // --- UI RENDER SECTION ---
-  // The return statement contains the JSX (HTML-like syntax) that will be displayed on the screen.
   return (
-    // Main container for the body content. Uses flexbox and Tailwind classes for layout and styling.
     <main className="flex-1 container mx-auto px-4 py-8" style={{ backgroundColor: '#eff0f3' }}>
       <div className="max-w-6xl mx-auto">
-        
-        {/* Title Section: Displays the main heading for this section of the page */}
+
+        {/* ── Title ── */}
         <div className="text-center mb-8">
           <h2 className="text-4xl font-bold mb-2" style={{ color: '#0d0d0d' }}>Find Your Chants</h2>
           <p style={{ color: '#2a2a2a' }}>Search through collection of idol chants &amp; mixes</p>
         </div>
 
-        {/* Search Bar Section */}
+        {/* ── Search Bar ── */}
         <div className="mb-8 flex justify-center">
           <div className="w-full max-w-2xl">
-            {/* 
-               The input field is "controlled" by React state.
-               - 'value' is bound to the 'searchTerm' state.
-               - 'onChange' fires every time the user types, updating the state.
-            */}
             <input
               type="text"
               placeholder="Search for idol chants..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-6 py-4 text-lg border-2 rounded-full focus:outline-none transition-all shadow-lg" style={{ borderColor: '#0d0d0d', color: '#2a2a2a', backgroundColor: '#ffffff' }}
+              className="w-full px-6 py-4 text-lg border-2 rounded-full focus:outline-none transition-all shadow-lg"
+              style={{ borderColor: '#0d0d0d', color: '#2a2a2a', backgroundColor: '#ffffff' }}
             />
           </div>
         </div>
 
-        {/* Script Toggle Section: Buttons to switch between Romaji, Hiragana, etc. */}
+        {/* ── Script Toggle ── */}
         <div className="mb-10 flex flex-wrap justify-center gap-2">
           <span className="font-medium self-center mr-2" style={{ color: '#2a2a2a' }}>Display:</span>
-          {/* We use .map() to loop over our SCRIPT_OPTIONS array and dynamically create buttons */}
           {SCRIPT_OPTIONS.map((opt) => (
             <button
-              // React needs a unique 'key' for items in a list to render them efficiently
               key={opt.value}
               type="button"
-              // When clicked, update the 'script' state to the value of the clicked button
               onClick={() => setScript(opt.value)}
-              // Dynamically apply CSS classes: if this button is the currently selected script, highlight it in purple.
               style={script === opt.value
                 ? { backgroundColor: '#ff8e3c', color: '#0d0d0d', borderColor: '#ff8e3c' }
                 : { backgroundColor: '#ffffff', color: '#2a2a2a', borderColor: '#0d0d0d' }}
-              className={`px-4 py-2 rounded-full font-medium transition-colors border-2`}
+              className="px-4 py-2 rounded-full font-medium transition-colors border-2"
             >
-              {/* The text displayed inside the button */}
               {opt.label}
             </button>
           ))}
         </div>
 
-        {/* Show Examples Toggle */}
+        {/* ── Show Examples Toggle ── */}
         <div className="mb-6 flex justify-center">
           <label
             className="flex items-center gap-3 cursor-pointer select-none px-5 py-2 rounded-full border-2 font-medium transition-colors"
@@ -122,14 +275,12 @@ function Body() {
               : { backgroundColor: '#ffffff', borderColor: '#0d0d0d', color: '#2a2a2a' }
             }
           >
-            {/* Hidden native checkbox — we style the label instead */}
             <input
               type="checkbox"
               className="hidden"
               checked={showExamples}
               onChange={(e) => setShowExamples(e.target.checked)}
             />
-            {/* Custom checkbox indicator */}
             <span
               className="w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0"
               style={showExamples
@@ -147,30 +298,184 @@ function Body() {
           </label>
         </div>
 
-        {/* Chants Grid Section: Displays the filtered chants as cards */}
+        {/* ══════════════════════════════════════════
+            PINNED CHANTS SECTION
+        ══════════════════════════════════════════ */}
+        {pinnedChants.length > 0 && (
+          <>
+            {/* Pinned header + Save as Image button */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                {/* Decorative pin dot */}
+                <span
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: '#ff8e3c' }}
+                />
+                <h3 className="text-lg font-bold tracking-wide" style={{ color: '#0d0d0d' }}>
+                  Pinned Chants
+                </h3>
+                <span
+                  className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: '#ff8e3c22', color: '#ff8e3c', border: '1px solid #ff8e3c66' }}
+                >
+                  {pinnedChants.length}
+                </span>
+              </div>
+
+              {/* Save as Image button */}
+              <button
+                type="button"
+                onClick={handleSaveAsImage}
+                className="flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm border-2 transition-all hover:shadow-md active:scale-95"
+                style={{ backgroundColor: '#0d0d0d', borderColor: '#0d0d0d', color: '#ffffff' }}
+              >
+                <IoImageOutline size={16} />
+                Save chants as image
+              </button>
+            </div>
+
+            {/* The pinned cards grid — this div is captured by html2canvas */}
+            <div
+              ref={pinnedRef}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 rounded-2xl"
+              style={{ backgroundColor: '#eff0f3' }}
+            >
+              {pinnedChants.map((chant, idx) => {
+                const isDragging = draggingIdx === idx
+                return (
+                  <div
+                    key={chant._pinId}
+                    data-pinidx={idx}
+                    ref={isDragging ? touchDragCardRef : null}
+                    draggable
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragEnter={() => handleDragEnter(idx)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => e.preventDefault()}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    className="rounded-xl shadow-md p-6 border relative group transition-all duration-200"
+                    style={{
+                      backgroundColor: '#fff8f3',
+                      borderColor: '#ff8e3c',
+                      borderWidth: '2px',
+                      borderStyle: isDragging ? 'dashed' : 'solid',
+                      opacity: isDragging ? 0.4 : 1,
+                      cursor: 'grab',
+                      touchAction: 'none',  // let our touch handlers own the gesture
+                    }}
+                  >
+                    {/* Drag handle + Action buttons */}
+                    <div className="absolute top-3 right-3">
+                      <div className="pinned-actions flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        {/* Grip handle — touch starts here on mobile */}
+                        <span
+                          title="Drag to reorder"
+                          className="p-1.5 rounded-full cursor-grab active:cursor-grabbing"
+                          style={{ color: '#0d0d0d55', touchAction: 'none' }}
+                          onTouchStart={(e) => handleTouchStart(e, idx)}
+                        >
+                          <IoReorderThreeOutline size={18} />
+                        </span>
+                        {/* Duplicate */}
+                        <button
+                          type="button"
+                          onClick={() => handleDuplicate(chant._pinId)}
+                          title="Duplicate"
+                          className="p-1.5 rounded-full transition-all hover:scale-110 active:scale-90"
+                          style={{ backgroundColor: '#ff8e3c22', color: '#ff8e3c' }}
+                        >
+                          <IoCopyOutline size={16} />
+                        </button>
+                        {/* Remove */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemove(chant._pinId)}
+                          title="Remove"
+                          className="p-1.5 rounded-full transition-all hover:scale-110 active:scale-90"
+                          style={{ backgroundColor: '#ff000022', color: '#cc0000' }}
+                        >
+                          <IoTrashOutline size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Chant name */}
+                    <h3 className="text-lg font-semibold mb-3 pr-20" style={{ color: '#0d0d0d' }}>
+                      {chant.name}
+                    </h3>
+                    {/* Chant text */}
+                    <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#2a2a2a' }}>
+                      {getDisplayText(chant)}
+                    </p>
+
+                    {/* Example link */}
+                    {showExamples && chant.example && (
+                      <div className="mt-3 pt-3" style={{ borderTop: '1px solid #ff8e3c44' }}>
+                        <p className="text-sm" style={{ color: '#2a2a2a' }}>
+                          Ex:{' '}
+                          <a
+                            href={chant.example.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline underline-offset-2 hover:opacity-70 transition-opacity"
+                            style={{ color: '#ff8e3c' }}
+                          >
+                            {chant.example.title}
+                          </a>
+                          {' '}at <strong style={{ color: '#0d0d0d' }}>{chant.example.timestamp}</strong>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* ── Divider between Pinned and main card grid ── */}
+            <div className="my-8 flex items-center gap-4">
+              <div className="flex-1 h-px" style={{ backgroundColor: '#0d0d0d33' }} />
+              <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#0d0d0d66' }}>
+                All Chants
+              </span>
+              <div className="flex-1 h-px" style={{ backgroundColor: '#0d0d0d33' }} />
+            </div>
+          </>
+        )}
+
+        {/* ══════════════════════════════════════════
+            MAIN CHANTS GRID
+        ══════════════════════════════════════════ */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* 
-             Conditional Rendering: 
-             If there is at least one chant matching the search, render the list.
-             Otherwise, show a "No chants found" message.
-          */}
           {filteredChants.length > 0 ? (
-            // Loop through the filtered array and render a card for each matching chant
             filteredChants.map((chant) => (
               <div
                 key={chant.id}
-                className="rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border" style={{ backgroundColor: '#ffffff', borderColor: '#0d0d0d' }}
+                className="rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border relative group"
+                style={{ backgroundColor: '#ffffff', borderColor: '#0d0d0d' }}
               >
-                {/* Display the chant's name */}
-                <h3 className="text-lg font-semibold mb-3" style={{ color: '#0d0d0d' }}>
+                {/* ── Add (Pin) button ── */}
+                {/* PC: shown on hover. Mobile: always visible (via index.css). */}
+                <button
+                  type="button"
+                  onClick={() => handlePin(chant)}
+                  title="Pin this chant"
+                  className="add-pin-btn absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 active:scale-90 pointer-events-none group-hover:pointer-events-auto"
+                  style={{ color: '#ff8e3c' }}
+                >
+                  <IoAddCircle size={26} />
+                </button>
+
+                {/* Chant name */}
+                <h3 className="text-lg font-semibold mb-3 pr-8" style={{ color: '#0d0d0d' }}>
                   {chant.name}
                 </h3>
-                {/* Display the actual text of the chant using our helper function */}
+                {/* Chant text */}
                 <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#2a2a2a' }}>
                   {getDisplayText(chant)}
                 </p>
 
-                {/* Example Section: only rendered when Show Examples is on AND the chant has an example */}
+                {/* Example link */}
                 {showExamples && chant.example && (
                   <div className="mt-3 pt-3" style={{ borderTop: '1px solid #0d0d0d22' }}>
                     <p className="text-sm" style={{ color: '#2a2a2a' }}>
@@ -191,7 +496,6 @@ function Body() {
               </div>
             ))
           ) : (
-            // Fallback UI when the search yields no results
             <div className="col-span-full text-center py-12">
               <p className="text-lg" style={{ color: '#2a2a2a' }}>
                 No chants found matching "{searchTerm}"
@@ -200,21 +504,16 @@ function Body() {
           )}
         </div>
 
-        {/* Results Count Section */}
-        {/* 
-           Conditional Rendering (Logical AND): 
-           Only show this block if the user has typed something in the search bar ('searchTerm' is truthy).
-        */}
+        {/* Results count */}
         {searchTerm && (
           <div className="mt-8 text-center" style={{ color: '#2a2a2a' }}>
-            {/* Show count and dynamically pluralize 'chant' vs 'chants' depending on the number of results */}
             Found {filteredChants.length} {filteredChants.length === 1 ? 'chant' : 'chants'}
           </div>
         )}
+
       </div>
     </main>
   )
 }
 
-// Export the component for use in the rest of the application.
 export default Body

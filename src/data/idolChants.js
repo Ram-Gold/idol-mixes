@@ -35,10 +35,20 @@ Oi oi! oi oi oi oi`,
     }
   },
   {
-    name: "CHOU KAWAII / YES TIGER",
-    romaji: `Ah ikuzo!
-◯◯ kawaii, chou kawaii! 4x
-Iet, iet, iettaiga! / Iettaiga, iettaiga, iettaiga
+    name: "CHOU KAWAII",
+    romaji: `[Ah ikuzo!]
+◯◯ kawaii, chou kawaii! 4x`,
+    hiragana: ``,
+    katakana: ``,
+    example: {
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      title: 'ILIFE - Idol Life Starter Pack',
+      timestamp: '4:21'
+    }
+  },
+  {
+    name: "YES TIGER",
+    romaji: `Iet, iet, iettaiga! / Iettaiga, iettaiga, iettaiga
 Faibo Waipa!`,
     hiragana: ``,
     katakana: ``,
@@ -134,7 +144,7 @@ sutosutoraipā`,
   },
   {
     name: "STANDARD MIX",
-    romaji: `Ah, yossha ikuzo!
+    romaji: `[Ah, yossha ikuzo!]
 Tiger (Taiga)!
 Fire (Faiya)!
 Cyber (Saiba)!
@@ -189,7 +199,7 @@ Taiga!`,
   },
   {
     name: "JAPANESE MIX",
-    romaji: `Ah, Mou iccho ikuzo!
+    romaji: `[Ah, Mou iccho ikuzo!]
 Tora!
 Hi!
 Jinzou!

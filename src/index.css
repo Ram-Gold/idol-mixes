@@ -7,3 +7,15 @@ html, body, #root {
   margin: 0;
   padding: 0;
 }
+
+/* ── Pinned Chants: always show action buttons on mobile ── */
+@media (max-width: 767px) {
+  .add-pin-btn {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  .pinned-actions {
+    opacity: 1 !important;
+  }
+}
