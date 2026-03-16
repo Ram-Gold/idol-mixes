@@ -1,5 +1,6 @@
 // Import React hooks for state management.
 import { useState, useRef } from 'react'
+import { motion, AnimatePresence } from "motion/react"
 
 // Import web-haptics for tactile feedback on mobile devices.
 // The library exposes a class — we create one shared singleton for the whole app.
@@ -8,13 +9,6 @@ const haptics = new WebHaptics()
 
 // Import the data containing the idol chants from a local file.
 import { idolChants } from '../data/idolChants'
-
-// Import react-icons for the Add, Duplicate, and Remove icons.
-import { IoAddCircle } from 'react-icons/io5'
-import { IoCopyOutline } from 'react-icons/io5'
-import { IoTrashOutline } from 'react-icons/io5'
-import { IoImageOutline } from 'react-icons/io5'
-import { IoReorderThreeOutline } from 'react-icons/io5'
 
 // Import html2canvas for saving pinned chants as an image.
 import html2canvas from 'html2canvas'
@@ -62,9 +56,18 @@ function Body() {
   })
 
   // Helper: decide which text to show based on selected script.
+  // Using a explicit switch-case for readability and better structure.
   const getDisplayText = (chant) => {
-    const text = chant[script] || chant.romaji
-    return text || ''
+    switch (script) {
+      case 'hiragana':
+        return chant.hiragana || chant.romaji || ''
+      case 'katakana':
+        return chant.katakana || chant.romaji || ''
+      case 'romaji':
+      default:
+        // Default to romaji when no script matches, or specifically explicitly chosen.
+        return chant.romaji || ''
+    }
   }
 
   // Generate a simple unique ID for duplicated pins.
@@ -228,12 +231,6 @@ function Body() {
     <main className="flex-1 container mx-auto px-4 py-8" style={{ backgroundColor: '#eff0f3' }}>
       <div className="max-w-6xl mx-auto">
 
-        {/* ── Title ── */}
-        <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold mb-2" style={{ color: '#0d0d0d' }}>Find Your Chants</h2>
-          <p style={{ color: '#2a2a2a' }}>Search through collection of idol chants &amp; mixes</p>
-        </div>
-
         {/* ── Search Bar ── */}
         <div className="mb-8 flex justify-center">
           <div className="w-full max-w-2xl">
@@ -290,7 +287,7 @@ function Body() {
             >
               {showExamples && (
                 <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
-                  <path d="M1 4L3.5 6.5L9 1" stroke="#ff8e3c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M1 4L3.5 6.5L9 1" stroke="#ff8e3c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
             </span>
@@ -301,16 +298,21 @@ function Body() {
         {/* ══════════════════════════════════════════
             PINNED CHANTS SECTION
         ══════════════════════════════════════════ */}
-        {pinnedChants.length > 0 && (
-          <>
+        <motion.div
+          animate={{
+            height: pinnedChants.length > 0 ? 'auto' : 0,
+            opacity: pinnedChants.length > 0 ? 1 : 0
+          }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          style={{ overflow: 'hidden' }}
+          className={pinnedChants.length > 0 ? 'pointer-events-auto' : 'pointer-events-none'}
+        >
+          <div className="pt-2 pb-2">
             {/* Pinned header + Save as Image button */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                {/* Decorative pin dot */}
-                <span
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: '#ff8e3c' }}
-                />
+                {/* Decorative pin icon (formerly an orange circle) */}
+                <i className="fa-solid fa-map-pin" style={{ color: '#ff8e3c', fontSize: '1.25rem' }}></i>
                 <h3 className="text-lg font-bold tracking-wide" style={{ color: '#0d0d0d' }}>
                   Pinned Chants
                 </h3>
@@ -326,11 +328,12 @@ function Body() {
               <button
                 type="button"
                 onClick={handleSaveAsImage}
-                className="flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm border-2 transition-all hover:shadow-md active:scale-95"
+                className="flex items-center justify-center gap-2 p-2 aspect-square md:aspect-auto md:w-auto md:px-4 md:py-2 rounded-full font-medium text-sm border-2 transition-all hover:shadow-md active:scale-95"
                 style={{ backgroundColor: '#0d0d0d', borderColor: '#0d0d0d', color: '#ffffff' }}
+                title="Save chants as image"
               >
-                <IoImageOutline size={16} />
-                Save chants as image
+                <i className="fa-solid fa-file-image text-lg md:text-base"></i>
+                <span className="hidden md:inline">Save chants as image</span>
               </button>
             </div>
 
@@ -340,10 +343,16 @@ function Body() {
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4 rounded-2xl"
               style={{ backgroundColor: '#eff0f3' }}
             >
+              <AnimatePresence>
               {pinnedChants.map((chant, idx) => {
                 const isDragging = draggingIdx === idx
                 return (
-                  <div
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.15 } }}
+                    transition={{ type: "spring", stiffness: 800, damping: 25 }}
                     key={chant._pinId}
                     data-pinidx={idx}
                     ref={isDragging ? touchDragCardRef : null}
@@ -373,7 +382,7 @@ function Body() {
                           onTouchMove={handleTouchMove}
                           onTouchEnd={handleTouchEnd}
                         >
-                          <IoReorderThreeOutline size={18} />
+                          <i className="fa-solid fa-grip-lines text-lg"></i>
                         </span>
                         {/* Duplicate */}
                         <button
@@ -383,7 +392,7 @@ function Body() {
                           className="p-1.5 rounded-full transition-all hover:scale-110 active:scale-90"
                           style={{ backgroundColor: '#ff8e3c22', color: '#ff8e3c' }}
                         >
-                          <IoCopyOutline size={16} />
+                          <i className="fa-solid fa-clone text-base"></i>
                         </button>
                         {/* Remove */}
                         <button
@@ -393,7 +402,7 @@ function Body() {
                           className="p-1.5 rounded-full transition-all hover:scale-110 active:scale-90"
                           style={{ backgroundColor: '#ff000022', color: '#cc0000' }}
                         >
-                          <IoTrashOutline size={16} />
+                          <i className="fa-solid fa-thumbtack-slash text-base"></i>
                         </button>
                       </div>
                     </div>
@@ -425,9 +434,10 @@ function Body() {
                         </p>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 )
               })}
+              </AnimatePresence>
             </div>
 
             {/* ── Divider between Pinned and main card grid ── */}
@@ -438,8 +448,8 @@ function Body() {
               </span>
               <div className="flex-1 h-px" style={{ backgroundColor: '#0d0d0d33' }} />
             </div>
-          </>
-        )}
+          </div>
+        </motion.div>
 
         {/* ══════════════════════════════════════════
             MAIN CHANTS GRID
@@ -447,7 +457,11 @@ function Body() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredChants.length > 0 ? (
             filteredChants.map((chant) => (
-              <div
+              <motion.div
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.05 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
                 key={chant.id}
                 className="rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border relative group"
                 style={{ backgroundColor: '#ffffff', borderColor: '#0d0d0d' }}
@@ -461,7 +475,7 @@ function Body() {
                   className="add-pin-btn absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 active:scale-90 pointer-events-none group-hover:pointer-events-auto"
                   style={{ color: '#ff8e3c' }}
                 >
-                  <IoAddCircle size={26} />
+                  <i className="fa-solid fa-thumbtack text-1xl"></i>
                 </button>
 
                 {/* Chant name */}
@@ -491,7 +505,7 @@ function Body() {
                     </p>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))
           ) : (
             <div className="col-span-full text-center py-12">
