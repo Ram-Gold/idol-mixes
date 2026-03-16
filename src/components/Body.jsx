@@ -42,6 +42,9 @@ function Body() {
   // Visual drag state — only one state value needed to trigger re-render for highlighting.
   const [draggingIdx, setDraggingIdx] = useState(null)
 
+  // Track which pinned chant is currently being edited.
+  const [editingPinId, setEditingPinId] = useState(null)
+
   // --- LOGIC SECTION ---
 
   // Filter the full list of idolChants by searchTerm.
@@ -371,8 +374,8 @@ function Body() {
                     }}
                   >
                     {/* Drag handle + Action buttons */}
-                    <div className="absolute top-3 right-3">
-                      <div className="pinned-actions flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="absolute top-3 right-3 z-10">
+                      <div className={`pinned-actions flex items-center gap-1 transition-opacity duration-200 ${editingPinId === chant._pinId ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         {/* Grip handle — touch starts here on mobile */}
                         <span
                           title="Drag to reorder"
@@ -384,6 +387,20 @@ function Body() {
                         >
                           <i className="fa-solid fa-grip-lines text-lg"></i>
                         </span>
+                        {/* Edit */}
+                        <button
+                          type="button"
+                          onClick={() => setEditingPinId(editingPinId === chant._pinId ? null : chant._pinId)}
+                          title={editingPinId === chant._pinId ? "Save Edit" : "Edit"}
+                          className="p-1.5 rounded-full transition-all hover:scale-110 active:scale-90"
+                          style={{ backgroundColor: '#3da9fc22', color: '#3da9fc' }}
+                        >
+                          {editingPinId === chant._pinId ? (
+                            <i className="fa-solid fa-check text-base"></i>
+                          ) : (
+                            <i className="fa-solid fa-pen-to-square text-base"></i>
+                          )}
+                        </button>
                         {/* Duplicate */}
                         <button
                           type="button"
@@ -408,13 +425,31 @@ function Body() {
                     </div>
 
                     {/* Chant name */}
-                    <h3 className="text-lg font-semibold mb-3 pr-20" style={{ color: '#0d0d0d' }}>
-                      {chant.name}
-                    </h3>
+                    {editingPinId === chant._pinId ? (
+                      <input
+                        className="text-lg font-semibold mb-3 w-full pl-2 pr-28 py-1 bg-white border border-gray-300 rounded focus:outline-none focus:border-[#ff8e3c]"
+                        style={{ color: '#0d0d0d' }}
+                        value={chant.name}
+                        onChange={(e) => setPinnedChants(prev => prev.map(c => c._pinId === chant._pinId ? { ...c, name: e.target.value } : c))}
+                      />
+                    ) : (
+                      <h3 className="text-lg font-semibold mb-3 pr-20" style={{ color: '#0d0d0d' }}>
+                        {chant.name}
+                      </h3>
+                    )}
                     {/* Chant text */}
-                    <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#2a2a2a' }}>
-                      {getDisplayText(chant)}
-                    </p>
+                    {editingPinId === chant._pinId ? (
+                      <textarea
+                        className="text-base leading-relaxed w-full bg-white border border-gray-300 rounded p-2 focus:outline-none focus:border-[#ff8e3c] min-h-[120px] resize-y"
+                        style={{ color: '#2a2a2a' }}
+                        value={chant[script] !== undefined ? chant[script] : (chant.romaji || '')}
+                        onChange={(e) => setPinnedChants(prev => prev.map(c => c._pinId === chant._pinId ? { ...c, [script]: e.target.value } : c))}
+                      />
+                    ) : (
+                      <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#2a2a2a' }}>
+                        {getDisplayText(chant)}
+                      </p>
+                    )}
 
                     {/* Example link */}
                     {showExamples && chant.example && (
