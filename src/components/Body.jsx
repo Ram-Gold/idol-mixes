@@ -427,13 +427,13 @@ function Body() {
                     {/* Chant name */}
                     {editingPinId === chant._pinId ? (
                       <input
-                        className="text-lg font-semibold mb-3 w-full pl-2 pr-28 py-1 bg-white border border-gray-300 rounded focus:outline-none focus:border-[#ff8e3c]"
+                        className="text-lg font-bold mb-3 w-full pl-2 pr-28 py-1 bg-white border border-gray-300 rounded focus:outline-none focus:border-[#ff8e3c]"
                         style={{ color: '#0d0d0d' }}
                         value={chant.name}
                         onChange={(e) => setPinnedChants(prev => prev.map(c => c._pinId === chant._pinId ? { ...c, name: e.target.value } : c))}
                       />
                     ) : (
-                      <h3 className="text-lg font-semibold mb-3 pr-20" style={{ color: '#0d0d0d' }}>
+                      <h3 className="text-lg font-bold mb-3 pr-20" style={{ color: '#0d0d0d' }}>
                         {chant.name}
                       </h3>
                     )}
@@ -514,7 +514,7 @@ function Body() {
                 </button>
 
                 {/* Chant name */}
-                <h3 className="text-lg font-semibold mb-3 pr-8" style={{ color: '#0d0d0d' }}>
+                <h3 className="text-lg font-bold mb-3 pr-8" style={{ color: '#0d0d0d' }}>
                   {chant.name}
                 </h3>
                 {/* Chant text */}

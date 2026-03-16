@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 html, body, #root {
+  font-family: 'LINE Seed JP', sans-serif;
   background-color: #eff0f3;
   margin: 0;
   padding: 0;
