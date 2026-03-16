@@ -374,7 +374,7 @@ function Body() {
                     }}
                   >
                     {/* Drag handle + Action buttons */}
-                    <div className="absolute top-3 right-3 z-10">
+                    <div className="absolute top-3 right-3 z-10" data-html2canvas-ignore="true">
                       <div className={`pinned-actions flex items-center gap-1 transition-opacity duration-200 ${editingPinId === chant._pinId ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                         {/* Grip handle — touch starts here on mobile */}
                         <span
