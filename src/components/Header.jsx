@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import light1 from '../assets/lightsticks/cyalume_light1_blue.png';
 import light2 from '../assets/lightsticks/cyalume_light2_yellow.png';
 import light3 from '../assets/lightsticks/cyalume_light3_red.png';
@@ -21,7 +22,25 @@ const lightsticks = [
   light9, light10, light11, light12, light13, light14, light15, light16
 ];
 
-// Define the Header component. In React, components are functions that return UI elements.
+const backgroundColors = [
+  '#0080FF', // light1: Blue
+  '#FFD700', // light2: Yellow
+  '#FF4500', // light3: Red
+  '#2E8B57', // light4: Green
+  '#FF8C00', // light5: Orange
+  '#4B0082', // light6: Purple
+  '#181818ff', // light7: White
+  '#FF69B4', // light8: Pink
+  '#C71585', // light9: Rose
+  '#B8860B', // light10: Lemon
+  '#00FF7F', // light11: Lime
+  '#191970', // light12: Dark Blue
+  '#20B2AA', // light13: Asagi
+  '#DA70D6', // light14: Violet
+  '#A0522D', // light15: Brown
+  '#708090', // light16: Gray
+];
+
 function Header() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -39,28 +58,43 @@ function Header() {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % lightsticks.length);
   };
 
+  const navLinkClass = ({ isActive }) =>
+    `text-lg font-medium transition-all duration-300 pb-1 border-b-2 ${isActive
+      ? 'text-white border-white'
+      : 'text-white/60 border-transparent hover:text-white/90 hover:border-white/30'
+    }`;
+
   return (
-    // The <header> tag represents the introductory content for its nearest ancestor sectioning content or sectioning root element.
-    // We use Tailwind CSS classes here for styling (e.g., bg-gradient-to-r creates a background gradient).
-    <header style={{ backgroundColor: '#ff8e3c' }} className="p-6">
-      <div className="container mx-auto flex items-center">
-        <img
-          src={lightsticks[currentIndex]}
-          alt="App Logo"
-          className="w-16 h-16 mr-5 cursor-pointer hover:scale-110 active:scale-95 transition-transform drop-shadow"
-          onClick={cycleLightstick}
-          title="Click to change color!"
-        />
-        <div>
-          {/* The main heading of the application */}
-          <h1 className="text-3xl font-bold" style={{ color: '#0d0d0d' }}>Idol Chant Finder</h1>
-          {/* A small subtitle or description below the main heading */}
-          <p className="mt-1" style={{ color: '#0d0d0d', opacity: 0.7 }}>Search through idol chants</p>
+    <header
+      style={{
+        backgroundColor: backgroundColors[currentIndex],
+        transition: 'background-color 0.5s ease-in-out'
+      }}
+      className="p-6 md:p-8"
+    >
+      <div className="container mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center">
+          <img
+            src={lightsticks[currentIndex]}
+            alt="App Logo"
+            className="w-16 h-16 mr-5 cursor-pointer hover:scale-110 active:scale-95 transition-transform drop-shadow-lg"
+            onClick={cycleLightstick}
+            title="Click to change color!"
+          />
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Idol Chant Finder</h1>
+            <p className="mt-0.5 text-white/70 text-sm">こんにちわいぱー！</p>
+          </div>
         </div>
+
+        <nav className="flex items-center gap-8 overflow-x-auto no-scrollbar py-2">
+          <NavLink to="/" className={navLinkClass}>Home</NavLink>
+          <NavLink to="/glossary" className={navLinkClass}>Glossary</NavLink>
+          <NavLink to="/others" className={navLinkClass}>Others</NavLink>
+        </nav>
       </div>
     </header>
   )
 }
 
-// Export the Header component so it can be imported and used in other files (like App.jsx).
 export default Header
