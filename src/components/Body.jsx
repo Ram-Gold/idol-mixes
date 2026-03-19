@@ -2,10 +2,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from "motion/react"
 
-// Import web-haptics for tactile feedback on mobile devices.
-// The library exposes a class — we create one shared singleton for the whole app.
-import { WebHaptics } from 'web-haptics'
-const haptics = new WebHaptics()
+import { useWebHaptics } from "web-haptics/react"
 
 // Import the data containing the idol chants from a local file.
 import { idolChants } from '../data/idolChants'
@@ -25,6 +22,8 @@ const SCRIPT_OPTIONS = [
 
 // Define the main Body component.
 function Body() {
+  const { trigger } = useWebHaptics()
+
   // --- STATE DEFINITIONS ---
   const [searchTerm, setSearchTerm] = useState('')
   const [script, setScript] = useState('romaji')
@@ -103,21 +102,29 @@ function Body() {
   // Generate a simple unique ID for duplicated pins.
   const genId = () => `pin-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
-  // Pin a chant.
-  const handlePin = (chant) => {
-    haptics.trigger([
+  const triggerRegular = () => {
+    trigger([
       { duration: 30 },
       { delay: 60, duration: 40, intensity: 1 },
     ])
+  }
+
+  const triggerRemove = () => {
+    trigger([
+      { duration: 40, intensity: 0.8 },
+      { delay: 100, duration: 40, intensity: 0.6 },
+    ])
+  }
+
+  // Pin a chant.
+  const handlePin = (chant) => {
+    triggerRegular()
     setPinnedChants(prev => [...prev, { ...chant, _pinId: genId() }])
   }
 
   // Duplicate a pinned chant.
   const handleDuplicate = (pinId) => {
-    haptics.trigger([
-      { duration: 30 },
-      { delay: 60, duration: 40, intensity: 1 },
-    ])
+    triggerRegular()
     setPinnedChants(prev => {
       const idx = prev.findIndex(c => c._pinId === pinId)
       if (idx === -1) return prev
@@ -130,18 +137,13 @@ function Body() {
 
   // Remove a pinned chant.
   const handleRemove = (pinId) => {
-    haptics.trigger([
-      { duration: 40, intensity: 0.7 },
-      { delay: 40, duration: 40, intensity: 0.7 },
-      { delay: 40, duration: 40, intensity: 0.9 },
-      { delay: 40, duration: 50, intensity: 0.6 },
-    ])
+    triggerRemove()
     setPinnedChants(prev => prev.filter(c => c._pinId !== pinId))
   }
 
   // Drag-and-drop handlers.
   const handleDragStart = (idx) => {
-    haptics.trigger([{ duration: 8 }], { intensity: 0.3 })
+    trigger([{ duration: 8 }], { intensity: 0.3 })
     dragSrcIdx.current = idx
     setDraggingIdx(idx)
   }
@@ -219,6 +221,7 @@ function Body() {
   // Save section as image.
   const handleSaveAsImage = async () => {
     if (!pinnedRef.current) return
+    triggerRegular()
     setIsCapturing(true)
     await new Promise(resolve => setTimeout(resolve, 50))
     try {
@@ -262,7 +265,10 @@ function Body() {
           {SCRIPT_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => setScript(opt.value)}
+              onClick={() => {
+                triggerRegular()
+                setScript(opt.value)
+              }}
               style={script === opt.value
                 ? { backgroundColor: '#ff8e3c', color: '#0d0d0d', borderColor: '#ff8e3c' }
                 : { backgroundColor: '#ffffff', color: '#2a2a2a', borderColor: '#0d0d0d' }}
@@ -287,7 +293,10 @@ function Body() {
               type="checkbox"
               className="hidden"
               checked={showExamples}
-              onChange={(e) => setShowExamples(e.target.checked)}
+              onChange={(e) => {
+                triggerRegular()
+                setShowExamples(e.target.checked)
+              }}
             />
             <span
               className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
@@ -314,7 +323,10 @@ function Body() {
               type="checkbox"
               className="hidden"
               checked={showTitle}
-              onChange={(e) => setShowTitle(e.target.checked)}
+              onChange={(e) => {
+                triggerRegular()
+                setShowTitle(e.target.checked)
+              }}
             />
             <span
               className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
