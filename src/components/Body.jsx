@@ -363,17 +363,17 @@ function Body() {
             </button>
           </div>
 
-          <div 
-            ref={pinnedRef} 
-            className="p-8 rounded-2xl relative" 
+          <div
+            ref={pinnedRef}
+            className="p-8 rounded-2xl relative"
             style={{ backgroundColor: '#eff0f3' }}
           >
             {/* Chant Set Title */}
             {showTitle && (
               <div className="mb-6">
-                <EditableTitle 
-                  value={chantSetTitle} 
-                  onChange={setChantSetTitle} 
+                <EditableTitle
+                  value={chantSetTitle}
+                  onChange={setChantSetTitle}
                   isCapturing={isCapturing}
                   placeholder="ADD CHANT SET TITLE..."
                 />
@@ -437,7 +437,7 @@ function Body() {
                       ) : (
                         <h3 className="text-lg font-bold mb-3 pr-20">{chant.name}</h3>
                       )}
-                      
+
                       {editingPinId === chant._pinId ? (
                         <textarea
                           className="text-base w-full border rounded p-2 min-h-[100px]"
@@ -450,7 +450,7 @@ function Body() {
 
                       {showExamples && chant.example && (
                         <div className="mt-3 pt-3 border-t border-gray-100">
-                           <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600">
                             Ex: <a href={chant.example.url} target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:opacity-70 transition-opacity">{chant.example.title}</a> at <strong className="text-gray-900">{chant.example.timestamp}</strong>
                           </p>
                         </div>
@@ -483,8 +483,8 @@ function Body() {
               key={chant.id}
               className="rounded-xl shadow-md p-6 border relative group bg-white border-black"
             >
-              <button 
-                onClick={() => handlePin(chant)} 
+              <button
+                onClick={() => handlePin(chant)}
                 className="absolute top-3 right-3 text-orange-500 transition-all duration-200 hover:scale-110 active:scale-90 md:opacity-0 md:group-hover:opacity-100"
                 title="Pin this chant"
               >
@@ -495,7 +495,7 @@ function Body() {
 
               {showExamples && chant.example && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                   <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600">
                     Ex: <a href={chant.example.url} target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:opacity-70 transition-opacity">{chant.example.title}</a> at <strong className="text-gray-900">{chant.example.timestamp}</strong>
                   </p>
                 </div>

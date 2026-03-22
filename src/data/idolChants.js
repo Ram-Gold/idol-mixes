@@ -4,6 +4,17 @@
 
 const rawChants = [
   {
+    name: "Member Call",
+    romaji: `◯◯◯ 4x`,
+    hiragana: `◯◯◯ 4x`,
+    katakana: `◯◯◯ 4x`,
+    example: {
+      url: 'https://youtu.be/kXjMuPq9x8Q?si=xFwmtsg7XrreerDw&t=3',
+      title: 'ILIFE - 可変３連MIXをおぼえる歌 ',
+      timestamp: '0:03'
+    }
+  },
+  {
     name: "OOING",
     romaji: `Minna de issho ni ooing!
 Ohhh *clap clap* Ohhh *clap clap* x2
@@ -468,26 +479,49 @@ Jāba! Tīgā! Jasu pāna!`,
   },
   {
     name: "SPANISH MIX",
-    romaji: `Vamos (Bamous)! Tigre (Tigure)! Fuego! Ciber (Shiberu)! Fibra (Fibura)! Buzo! Viber (Biburaru)! Jersey (Herusei)! Volare (Borare)! Limpiaparabrisas (Rimpiaparaburisasu)!`,
+    romaji: `Vamos (Bamous)! 
+Tigre (Tigure)! 
+Fuego! 
+Ciber (Shiberu)! 
+Fibra (Fibura)! 
+Buzo! 
+Viber (Biburaru)! 
+Jersey (Herusei)! 
+Volare (Borare)! 
+Limpiaparabrisas (Rimpiaparaburisasu)!`,
     hiragana: ``,
     katakana: ``,
 
     example: {
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      title: 'ILIFE - Idol Life Starter Pack',
-      timestamp: '4:21'
+      url: 'https://youtu.be/nqXeVmrg0HI?si=DTV3M8efYdvwQM98&t=198',
+      title: 'FES☆TIVE - シダレヤナギ',
+      timestamp: '3:18'
     }
   },
   {
     name: "URA SPANISH/URASUPE MIX",
-    romaji: `Vamos (Bamous)! Tigure! Fego! Fiburaru! Buzo! Biburaru! Shirena! Diosa! Nabida! Reno! Anheru! Senishienta!`,
+    romaji: `Vamos (Bamous)!
+Tigure!
+Fego!
+Fiburaru!
+Buzo!
+Biburaru!
+Shirena!
+Diosa!
+Nabida!
+Reno!
+Anheru!
+Senishienta!
+Esubanshion!
+Pai-Suderasu!
+Marabijasu!`,
     hiragana: ``,
     katakana: ``,
 
     example: {
-      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-      title: 'ILIFE - Idol Life Starter Pack',
-      timestamp: '4:21'
+      url: 'https://youtu.be/QMxOA6SAmk4?si=y2x2HdDhK2fnbaQl&t=163',
+      title: '//NECOPLA// - Ignite',
+      timestamp: '2:43'
     }
   },
   {
