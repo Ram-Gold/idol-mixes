@@ -1,6 +1,7 @@
 // Import React hooks for state management.
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from "motion/react"
+import { Helmet } from 'react-helmet-async'
 
 import { useWebHaptics } from "web-haptics/react"
 
@@ -243,7 +244,12 @@ function Body() {
   }
 
   return (
-    <main className="flex-1 container mx-auto px-4 py-8" style={{ backgroundColor: '#eff0f3' }}>
+    <main className="flex-1 container mx-auto px-4 py-8" style={{ backgroundColor: 'var(--bg-page)' }}>
+      <Helmet>
+        <title>Idol Mixes - Find and Pin Your Favorite Idol Chants</title>
+        <meta name="description" content="Comprehensive guide to Japanese idol culture, chants, and glossary of terms." />
+        <link rel="canonical" href="https://idol-mixes.vercel.app/" />
+      </Helmet>
       <div className="max-w-6xl mx-auto">
 
         {/* Search */}
@@ -255,7 +261,7 @@ function Body() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-6 py-4 text-lg border-2 rounded-full focus:outline-none transition-all shadow-lg text-center"
-              style={{ borderColor: '#0d0d0d', color: '#2a2a2a', backgroundColor: '#ffffff' }}
+              style={{ borderColor: 'var(--border-default)', color: 'var(--input-text)', backgroundColor: 'var(--input-bg)' }}
             />
           </div>
         </div>
@@ -270,8 +276,8 @@ function Body() {
                 setScript(opt.value)
               }}
               style={script === opt.value
-                ? { backgroundColor: '#ff8e3c', color: '#0d0d0d', borderColor: '#ff8e3c' }
-                : { backgroundColor: '#ffffff', color: '#2a2a2a', borderColor: '#0d0d0d' }}
+                ? { backgroundColor: 'var(--accent)', color: '#0d0d0d', borderColor: 'var(--accent)' }
+                : { backgroundColor: 'var(--btn-inactive-bg)', color: 'var(--btn-inactive-text)', borderColor: 'var(--border-default)' }}
               className="px-4 py-2 rounded-full font-medium transition-colors border-2"
             >
               {opt.label}
@@ -285,8 +291,8 @@ function Body() {
           <label
             className="flex items-center gap-3 cursor-pointer select-none px-5 py-2 rounded-full border-2 font-medium transition-all hover:scale-105 active:scale-95 shadow-sm"
             style={showExamples
-              ? { backgroundColor: '#ff8e3c', borderColor: '#ff8e3c', color: '#0d0d0d' }
-              : { backgroundColor: '#ffffff', borderColor: '#0d0d0d', color: '#2a2a2a' }
+              ? { backgroundColor: 'var(--accent)', borderColor: 'var(--accent)', color: '#0d0d0d' }
+              : { backgroundColor: 'var(--btn-inactive-bg)', borderColor: 'var(--border-default)', color: 'var(--btn-inactive-text)' }
             }
           >
             <input
@@ -300,7 +306,7 @@ function Body() {
             />
             <span
               className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
-              style={showExamples ? { backgroundColor: '#0d0d0d', borderColor: '#0d0d0d' } : { borderColor: '#0d0d0d' }}
+              style={showExamples ? { backgroundColor: 'var(--text-heading)', borderColor: 'var(--text-heading)' } : { borderColor: 'var(--border-default)' }}
             >
               {showExamples && (
                 <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} width="10" height="8" viewBox="0 0 10 8" fill="none">
@@ -315,8 +321,8 @@ function Body() {
           <label
             className="flex items-center gap-3 cursor-pointer select-none px-5 py-2 rounded-full border-2 font-medium transition-all hover:scale-105 active:scale-95 shadow-sm"
             style={showTitle
-              ? { backgroundColor: '#ff8e3c', borderColor: '#ff8e3c', color: '#0d0d0d' }
-              : { backgroundColor: '#ffffff', borderColor: '#0d0d0d', color: '#2a2a2a' }
+              ? { backgroundColor: 'var(--accent)', borderColor: 'var(--accent)', color: '#0d0d0d' }
+              : { backgroundColor: 'var(--btn-inactive-bg)', borderColor: 'var(--border-default)', color: 'var(--btn-inactive-text)' }
             }
           >
             <input
@@ -330,7 +336,7 @@ function Body() {
             />
             <span
               className="w-4 h-4 rounded border-2 flex items-center justify-center transition-colors"
-              style={showTitle ? { backgroundColor: '#0d0d0d', borderColor: '#0d0d0d' } : { borderColor: '#0d0d0d' }}
+              style={showTitle ? { backgroundColor: 'var(--text-heading)', borderColor: 'var(--text-heading)' } : { borderColor: 'var(--border-default)' }}
             >
               {showTitle && (
                 <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} width="10" height="8" viewBox="0 0 10 8" fill="none">
@@ -344,6 +350,7 @@ function Body() {
 
         {/* Pinned Section */}
         <motion.div
+          initial={false}
           animate={{ height: pinnedChants.length > 0 ? 'auto' : 0, opacity: pinnedChants.length > 0 ? 1 : 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
           style={{ overflow: 'hidden' }}
@@ -352,11 +359,12 @@ function Body() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <i className="fa-solid fa-map-pin" style={{ color: '#ff8e3c', fontSize: '1.25rem' }}></i>
-              <h3 className="text-lg font-bold tracking-wide">Pinned</h3>
+              <h3 className="text-lg font-bold tracking-wide" style={{ color: 'var(--text-heading)' }}>Pinned</h3>
             </div>
             <button
               onClick={handleSaveAsImage}
-              className="flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm border-2 bg-black text-white"
+              className="flex items-center gap-2 px-4 py-2 rounded-full font-medium text-sm border-2"
+              style={{ backgroundColor: 'var(--text-heading)', color: 'var(--bg-page)', borderColor: 'var(--text-heading)' }}
             >
               <i className="fa-solid fa-file-image"></i>
               <span>Save Image</span>
@@ -366,7 +374,7 @@ function Body() {
           <div
             ref={pinnedRef}
             className="p-8 rounded-2xl relative"
-            style={{ backgroundColor: '#eff0f3' }}
+            style={{ backgroundColor: 'var(--bg-card-pinned)' }}
           >
             {/* Chant Set Title */}
             {showTitle && (
@@ -398,9 +406,10 @@ function Body() {
                       onDragEnter={() => handleDragEnter(idx)}
                       onDragEnd={handleDragEnd}
                       onDragOver={(e) => e.preventDefault()}
-                      className="rounded-xl shadow-md p-6 border relative group bg-white"
+                      className="rounded-xl shadow-md p-6 border relative group"
                       style={{
-                        borderColor: '#ff8e3c',
+                        backgroundColor: 'var(--bg-card)',
+                        borderColor: 'var(--accent)',
                         borderWidth: '2px',
                         borderStyle: isDragging ? 'dashed' : 'solid',
                         opacity: isDragging ? 0.4 : 1,
@@ -435,7 +444,7 @@ function Body() {
                           onChange={(e) => setPinnedChants(prev => prev.map(c => c._pinId === chant._pinId ? { ...c, name: e.target.value } : c))}
                         />
                       ) : (
-                        <h3 className="text-lg font-bold mb-3 pr-20">{chant.name}</h3>
+                        <h3 className="text-lg font-bold mb-3 pr-20" style={{ color: 'var(--text-heading)' }}>{chant.name}</h3>
                       )}
 
                       {editingPinId === chant._pinId ? (
@@ -445,13 +454,13 @@ function Body() {
                           onChange={(e) => setPinnedChants(prev => prev.map(c => c._pinId === chant._pinId ? { ...c, [script]: e.target.value } : c))}
                         />
                       ) : (
-                        <p className="text-base whitespace-pre-wrap">{getDisplayText(chant)}</p>
+                        <p className="text-base whitespace-pre-wrap" style={{ color: 'var(--text-body)' }}>{getDisplayText(chant)}</p>
                       )}
 
                       {showExamples && chant.example && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <p className="text-sm text-gray-600">
-                            Ex: <a href={chant.example.url} target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:opacity-70 transition-opacity">{chant.example.title}</a> at <strong className="text-gray-900">{chant.example.timestamp}</strong>
+                        <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                            Ex: <a href={chant.example.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }} className="underline underline-offset-2 hover:opacity-70 transition-opacity">{chant.example.title}</a> at <strong style={{ color: 'var(--text-heading)' }}>{chant.example.timestamp}</strong>
                           </p>
                         </div>
                       )}
@@ -467,9 +476,9 @@ function Body() {
           </div>
 
           <div className="my-8 flex items-center gap-4">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">All Chants</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>All Chants</span>
+            <div className="flex-1 h-px" style={{ backgroundColor: 'var(--border-subtle)' }} />
           </div>
         </motion.div>
 
@@ -481,7 +490,8 @@ function Body() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               key={chant.id}
-              className="rounded-xl shadow-md p-6 border relative group bg-white border-black"
+              className="rounded-xl shadow-md p-6 border relative group"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-default)' }}
             >
               <button
                 onClick={() => handlePin(chant)}
@@ -490,13 +500,13 @@ function Body() {
               >
                 <i className="fa-solid fa-thumbtack text-xl"></i>
               </button>
-              <h3 className="text-lg font-bold mb-3 pr-8">{chant.name}</h3>
-              <p className="text-base whitespace-pre-wrap">{getDisplayText(chant)}</p>
+              <h3 className="text-lg font-bold mb-3 pr-8" style={{ color: 'var(--text-heading)' }}>{chant.name}</h3>
+              <p className="text-base whitespace-pre-wrap" style={{ color: 'var(--text-body)' }}>{getDisplayText(chant)}</p>
 
               {showExamples && chant.example && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-sm text-gray-600">
-                    Ex: <a href={chant.example.url} target="_blank" rel="noopener noreferrer" className="text-orange-500 underline underline-offset-2 hover:opacity-70 transition-opacity">{chant.example.title}</a> at <strong className="text-gray-900">{chant.example.timestamp}</strong>
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--border-subtle)' }}>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                    Ex: <a href={chant.example.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }} className="underline underline-offset-2 hover:opacity-70 transition-opacity">{chant.example.title}</a> at <strong style={{ color: 'var(--text-heading)' }}>{chant.example.timestamp}</strong>
                   </p>
                 </div>
               )}

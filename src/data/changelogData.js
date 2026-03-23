@@ -3,7 +3,9 @@ export const CHANGELOG_DATA = [
         date: '2026-03-23',
         items: [
             'Updated the glossary page, added more terms',
-            'Updated examples for chants (Spanish Mixes)'
+            'Updated examples for chants (Spanish Mixes)',
+            'Optimized SEO with react-helmet-async',
+            'Dark Mode Implementation'
         ]
     },
     {

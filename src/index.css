@@ -2,11 +2,115 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── CSS Custom Properties ── */
+:root {
+  /* Light Mode (default) */
+  --bg-page:        #eff0f3;
+  --bg-card:        #ffffff;
+  --bg-card-pinned: #eff0f3;
+  --text-heading:   #0d0d0d;
+  --text-body:      #2a2a2a;
+  --text-muted:     #6b7280;       /* gray-500 */
+  --border-default: #0d0d0d;
+  --border-subtle:  #e5e7eb;       /* gray-200 */
+  --border-hover:   #555555;
+  --accent:         #ff8e3c;
+  --input-bg:       #ffffff;
+  --input-text:     #2a2a2a;
+  --btn-inactive-bg: #ffffff;
+  --btn-inactive-text: #2a2a2a;
+  --shadow-color:   rgba(0, 0, 0, 0.08);
+  --toggle-bg:      #e5e7eb;
+  --toggle-knob:    #ffffff;
+  --footer-bg:      #0d0d0d;
+  --footer-text:    #eff0f3;
+}
+
+html.dark {
+  --bg-page:        #0d0d0d;
+  --bg-card:        #1a1a1a;
+  --bg-card-pinned: #0d0d0d;
+  --text-heading:   #ffffff;
+  --text-body:      #d1d5db;
+  --text-muted:     #9ca3af;
+  --border-default: #333333;
+  --border-subtle:  #333333;
+  --border-hover:   #444444;
+  --accent:         #ff8e3c;
+  --input-bg:       #1a1a1a;
+  --input-text:     #d1d5db;
+  --btn-inactive-bg: #1a1a1a;
+  --btn-inactive-text: #d1d5db;
+  --shadow-color:   rgba(0, 0, 0, 0.4);
+  --toggle-bg:      #333333;
+  --toggle-knob:    #d1d5db;
+  --footer-bg:      #0d0d0d;
+  --footer-text:    #9ca3af;
+}
+
+/* ── Global Base Styles ── */
 html, body, #root {
   font-family: 'LINE Seed JP', sans-serif;
-  background-color: #eff0f3;
+  background-color: var(--bg-page);
+  color: var(--text-body);
   margin: 0;
   padding: 0;
+  /* Smooth transition for theme switch */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Page-level theme transition ── */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* Exclude transitions on elements that shouldn't animate (e.g. animations) */
+.no-theme-transition, .no-theme-transition * {
+  transition: none !important;
+}
+
+/* ── Dark Mode Toggle Switch ── */
+.theme-toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.theme-toggle-switch input {
+  display: none;
+}
+
+.theme-toggle-track {
+  width: 42px;
+  height: 24px;
+  background-color: var(--toggle-bg);
+  border-radius: 9999px;
+  position: relative;
+  transition: background-color 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.theme-toggle-switch input:checked + .theme-toggle-track {
+  background-color: #ff8e3c;
+}
+
+.theme-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--toggle-knob);
+  border-radius: 9999px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.theme-toggle-switch input:checked + .theme-toggle-track .theme-toggle-knob {
+  transform: translateX(18px);
 }
 
 /* ── Pinned Chants: always show action buttons on mobile ── */

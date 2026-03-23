@@ -32,7 +32,8 @@ function EditableTitle({ value, onChange, placeholder = "Enter Title...", isCapt
         <input
           ref={inputRef}
           type="text"
-          className="w-full text-left text-xl font-bold bg-transparent border-none focus:ring-0 p-0 text-gray-800 placeholder-gray-400 uppercase tracking-[0.2em]"
+          className="w-full text-left text-xl font-bold bg-transparent border-none focus:ring-0 p-0 placeholder-gray-400 uppercase tracking-[0.2em]"
+          style={{ color: 'var(--text-heading)' }}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleSave}
@@ -49,12 +50,12 @@ function EditableTitle({ value, onChange, placeholder = "Enter Title...", isCapt
       onClick={() => !isCapturing && setIsEditing(true)}
     >
       {value ? (
-        <h1 className="text-xl font-bold text-gray-800 uppercase tracking-[0.2em] text-left">
+        <h1 className="text-xl font-bold uppercase tracking-[0.2em] text-left" style={{ color: 'var(--text-heading)' }}>
           {value}
         </h1>
       ) : (
         <div className={`opacity-40 transition-opacity ${isCapturing ? 'hidden' : 'group-hover:opacity-100'}`}>
-          <span className="text-xl uppercase tracking-[0.2em] font-bold text-gray-400 text-left">
+          <span className="text-xl uppercase tracking-[0.2em] font-bold text-left" style={{ color: 'var(--text-muted)' }}>
             {placeholder}
           </span>
         </div>
