@@ -5,7 +5,9 @@ export const CHANGELOG_DATA = [
             'Updated the glossary page, added more terms',
             'Updated examples for chants (Spanish Mixes)',
             'Optimized SEO with react-helmet-async',
-            'Dark Mode Implementation'
+            'Dark Mode Implementation',
+            'Removed Hiragana & Katakana',
+            'Replaced by Japanese (日本語)'
         ]
     },
     {

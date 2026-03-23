@@ -61,6 +61,7 @@ function Others() {
             <a href="https://yumetwins.com/blog/types-of-japanese-idols" rel="noreferrer" style={{ color: 'var(--accent)' }}>YumeTwins</a> - Types of Japanese Idols<br />
             <a href="https://www.fun-japan.jp/en/articles/14014" rel="noreferrer" style={{ color: 'var(--accent)' }}>FUN! JAPAN</a> - Complete Guide to Oshikatsu Terminology!<br />
             <a href="https://www.hello-online.org/index.php?/topic/14218-wotagei-chant-guide-for-morning-musume-anime-expo-2009/#entry731443" rel="noreferrer" style={{ color: 'var(--accent)' }}>Hello Online</a> - Wotagei Chant Guide for Morning Musume (Anime Expo 2009)<br />
+            <a href="https://tinyurl.com/WotaDatabase" rel="noreferrer" style={{ color: 'var(--accent)' }}>Wota Database</a> - by Midnight Aerie, Ashes, and Dracil<br />
           </p>
           <img
             src="https://c.tenor.com/lcyE7yhDA3kAAAAd/tenor.gif"

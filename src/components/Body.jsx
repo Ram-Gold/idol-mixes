@@ -17,8 +17,7 @@ import EditableTitle from './EditableTitle'
 // Script toggle options.
 const SCRIPT_OPTIONS = [
   { value: 'romaji', label: 'Romaji' },
-  { value: 'hiragana', label: 'Hiragana' },
-  { value: 'katakana', label: 'Katakana' }
+  { value: 'Japanese', label: '日本語' }
 ]
 
 // Define the main Body component.
@@ -37,7 +36,7 @@ function Body() {
   })
   const [isCapturing, setIsCapturing] = useState(false)
 
-  // pinnedChants: array of { id, originalId, name, romaji, hiragana, katakana, example }
+  // pinnedChants: array of { id, originalId, name, romaji, Japanese, example }
   const [pinnedChants, setPinnedChants] = useState(() => {
     try {
       const saved = localStorage.getItem('idolChant_pinned')
@@ -82,18 +81,15 @@ function Body() {
     return (
       chant.name.toLowerCase().includes(q) ||
       (chant.romaji && chant.romaji.toLowerCase().includes(q)) ||
-      (chant.hiragana && chant.hiragana.includes(searchTerm)) ||
-      (chant.katakana && chant.katakana.includes(searchTerm))
+      (chant.Japanese && chant.Japanese.includes(searchTerm))
     )
   })
 
   // Helper: decide which text to show based on selected script.
   const getDisplayText = (chant) => {
     switch (script) {
-      case 'hiragana':
-        return chant.hiragana || chant.romaji || ''
-      case 'katakana':
-        return chant.katakana || chant.romaji || ''
+      case 'Japanese':
+        return chant.Japanese || chant.romaji || ''
       case 'romaji':
       default:
         return chant.romaji || ''
