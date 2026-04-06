@@ -3,7 +3,7 @@
 A modern, searchable database for Idol Calls and Mixes.
 
 ## 🤖 The Vibe-Coded
-This project is **vibe coded**. A **0%** vibe coded one is on the works
+This project is **vibe coded**
 
 ## 📚 The Data Source
 The foundational logic and call structures used in this database are from this guide:
